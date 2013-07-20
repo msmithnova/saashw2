@@ -10,6 +10,19 @@ class MoviesController < ApplicationController
     @sort_by = params[:sort]
     @all_ratings = Movie.ratings
     @ratings = params[:ratings]
+    redirect = false
+    if @sort_by.nil? && !session[:sort].nil?
+      @sort_by = session[:sort]
+      redirect = true
+    end
+    if @ratings.nil? && !session[:ratings].nil?
+      @ratings = session[:ratings]
+      redirect = true
+    end
+    if redirect
+      flash.keep
+      redirect_to movies_path(:sort => @sort_by, :ratings => @ratings)
+    end
     if @ratings.nil?
       @ratings = Hash.new
       @all_ratings.each {|rating| @ratings[rating] = 1}
@@ -19,6 +32,8 @@ class MoviesController < ApplicationController
     else
       @movies = Movie.find_all_by_rating(@ratings.keys, :order => "#{@sort_by} ASC")
     end
+    session[:sort] = @sort_by
+    session[:ratings] = @ratings
   end
 
   def new
