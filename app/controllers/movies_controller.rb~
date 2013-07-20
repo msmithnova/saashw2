@@ -12,7 +12,6 @@ class MoviesController < ApplicationController
       @movies = Movie.all
     else
       @movies = Movie.find(:all, :order => "#{@sort_by} ASC")
-    end
   end
 
   def new
