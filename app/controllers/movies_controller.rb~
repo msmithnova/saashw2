@@ -8,7 +8,8 @@ class MoviesController < ApplicationController
 
   def index
     @sort_by = params[:sort]
-    @all_ratings = Movie.ratings
+    @all_ratings = Hash.new
+    Movie.ratings.each {|rating| @all_ratings[rating] = 1}
     @ratings = params[:ratings]
     redirect = false
     if @sort_by.nil? && !session[:sort].nil?
@@ -24,16 +25,17 @@ class MoviesController < ApplicationController
       redirect_to movies_path(:sort => @sort_by, :ratings => @ratings)
     end
     if @ratings.nil?
-      @ratings = Hash.new
-      @all_ratings.each {|rating| @ratings[rating] = 1}
+      ratings = @all_ratings.keys
+    else
+      ratings = @ratings.keys
     end
     if @sort_by.nil?
-      @movies = Movie.find_all_by_rating(@ratings.keys)
+      @movies = Movie.find_all_by_rating(ratings)
     else
-      @movies = Movie.find_all_by_rating(@ratings.keys, :order => "#{@sort_by} ASC")
+      @movies = Movie.find_all_by_rating(ratings, :order => "#{@sort_by} ASC")
     end
-    session[:sort]=@sort_by
-    session[:ratings]=@ratings
+    session[:sort] = @sort_by
+    session[:ratings] = @ratings
   end
 
   def new
